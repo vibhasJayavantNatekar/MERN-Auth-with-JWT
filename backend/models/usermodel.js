@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema(
 )
 
 //Static signup method
-userSchema.statics.signup = async function (email, password){
+userSchema.statics.signup = async function (email, password) {
     //validation
     if (!email || !password) {
         throw Error('All field must be filled')
@@ -41,6 +41,30 @@ userSchema.statics.signup = async function (email, password){
     const user = await this.create({ email, password: hash })
 
     return user
+}
+
+//static login method
+userSchema.statics.login = async function (email, password) {
+
+    //validation
+    if (!email || !password) {
+        throw Error('All field must be filled')
+    }
+
+    const user= await this.findOne({ email })
+
+    if (!user) {
+        throw Error('Incorrect Email')
+    }
+
+    const match = await bcrypt.compare(password , user.password)
+
+    if(!match){
+        throw Error('Incorrect password')
+    }
+
+    return user
+
 }
 
 module.exports = mongoose.model('user', userSchema)
